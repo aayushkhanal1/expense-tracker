@@ -1,4 +1,6 @@
 import { useState, useRef } from "react";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 function TransactionForm({ setTransactions }) {
   const descriptionRef = useRef(null);
@@ -22,9 +24,7 @@ function TransactionForm({ setTransactions }) {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/transactions",
-        {
+      const response = await fetch(`${API_URL}/api/transactions`, {
           method: "POST",
 
           headers: {

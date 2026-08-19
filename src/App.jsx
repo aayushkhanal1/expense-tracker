@@ -8,7 +8,7 @@ import SearchBar from "./Component/SearchBar";
 import FilterButtons from "./Component/FilterButton";
 
 import "./App.css";
-
+const API_URL = import.meta.env.VITE_API_URL;
 function App() {
   // Store transactions received from MongoDB
   const [transactions, setTransactions] = useState([]);
@@ -27,10 +27,7 @@ function App() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/transactions"
-        );
-
+        const response = await fetch(`${API_URL}/api/transactions`);
         if (!response.ok) {
           throw new Error("Failed to fetch transactions");
         }
@@ -58,24 +55,21 @@ function App() {
     setEditingId(null);
   };
 
-  const saveEdit = async (id, updatedTitle, updatedAmount,type) => {
+  const saveEdit = async (id, updatedTitle, updatedAmount, type) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/transactions/${id}`,
-        {
-          method: "PUT",
+      const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+        method: "PUT",
 
-          headers: {
-            "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-          body: JSON.stringify({
-            description: updatedTitle,
-            amount: Number(updatedAmount),
-            type: type,
-          }),
-        }
-      );
+        body: JSON.stringify({
+          description: updatedTitle,
+          amount: Number(updatedAmount),
+          type: type,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update transaction");
@@ -85,10 +79,8 @@ function App() {
 
       setTransactions((prevTransactions) =>
         prevTransactions.map((transaction) =>
-          transaction._id === id
-            ? updatedTransaction
-            : transaction
-        )
+          transaction._id === id ? updatedTransaction : transaction,
+        ),
       );
 
       setEditingId(null);
@@ -103,21 +95,16 @@ function App() {
 
   const deleteTransaction = async (id) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/transactions/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete transaction");
       }
 
       setTransactions((prevTransactions) =>
-        prevTransactions.filter(
-          (transaction) => transaction._id !== id
-        )
+        prevTransactions.filter((transaction) => transaction._id !== id),
       );
     } catch (error) {
       console.error("Failed to delete transaction:", error);
@@ -130,19 +117,11 @@ function App() {
 
   const totalIncome = transactions
     .filter((transaction) => transaction.type === "income")
-    .reduce(
-      (total, transaction) =>
-        total + Number(transaction.amount || 0),
-      0
-    );
+    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
 
   const totalExpenses = transactions
     .filter((transaction) => transaction.type === "expense")
-    .reduce(
-      (total, transaction) =>
-        total + Number(transaction.amount || 0),
-      0
-    );
+    .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
 
   const balance = totalIncome - totalExpenses;
 
@@ -150,20 +129,15 @@ function App() {
   // SEARCH + FILTER
   // =========================
 
-  const filteredTransactions = transactions.filter(
-    (transaction) => {
-      const matchesSearch =
-        transaction.description
-          .toLowerCase()
-          .includes(search.toLowerCase());
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesSearch = transaction.description
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
-      const matchesFilter =
-        filter === "all" ||
-        transaction.type === filter;
+    const matchesFilter = filter === "all" || transaction.type === filter;
 
-      return matchesSearch && matchesFilter;
-    }
-  );
+    return matchesSearch && matchesFilter;
+  });
 
   // =========================
   // UI
@@ -171,30 +145,20 @@ function App() {
 
   return (
     <div className="app">
-
       <Navbar />
 
       <main className="container">
-
         <Dashboard
           balance={balance}
           totalIncome={totalIncome}
           totalExpenses={totalExpenses}
         />
 
-        <TransactionForm
-          setTransactions={setTransactions}
-        />
+        <TransactionForm setTransactions={setTransactions} />
 
-        <SearchBar
-          search={search}
-          setSearch={setSearch}
-        />
+        <SearchBar search={search} setSearch={setSearch} />
 
-        <FilterButtons
-          filter={filter}
-          setFilter={setFilter}
-        />
+        <FilterButtons filter={filter} setFilter={setFilter} />
 
         <TransactionList
           transactions={filteredTransactions}
@@ -204,9 +168,7 @@ function App() {
           saveEdit={saveEdit}
           cancelEdit={cancelEdit}
         />
-
       </main>
-
     </div>
   );
 }
